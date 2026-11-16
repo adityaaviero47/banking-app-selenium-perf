@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+httpx
+pytest
+selenium
+# only for machines that cannot download a driver: pin to your Chrome's major version
+# chromedriver-py==153.*
