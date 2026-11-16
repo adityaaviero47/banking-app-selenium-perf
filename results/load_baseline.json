@@ -1,0 +1,56 @@
+{
+ "concurrency": 20,
+ "duration_s": 15,
+ "results": [
+  {
+   "scenario": "statement_first_page",
+   "requests": 500,
+   "rps": 32.7,
+   "p50_ms": 595.8,
+   "p95_ms": 783.1,
+   "p99_ms": 878.1,
+   "mean_ms": 607.2,
+   "errors": 0
+  },
+  {
+   "scenario": "statement_page_200",
+   "requests": 390,
+   "rps": 25.3,
+   "p50_ms": 765.1,
+   "p95_ms": 963.3,
+   "p99_ms": 1059.0,
+   "mean_ms": 782.0,
+   "errors": 0
+  },
+  {
+   "scenario": "statement_search",
+   "requests": 179,
+   "rps": 11.1,
+   "p50_ms": 1713.0,
+   "p95_ms": 2619.4,
+   "p99_ms": 2967.7,
+   "mean_ms": 1756.7,
+   "errors": 0
+  },
+  {
+   "scenario": "statement_normal_account",
+   "requests": 598,
+   "rps": 38.9,
+   "p50_ms": 504.2,
+   "p95_ms": 648.8,
+   "p99_ms": 719.3,
+   "mean_ms": 511.7,
+   "errors": 0
+  },
+  {
+   "scenario": "transfer",
+   "requests": 5508,
+   "rps": 362.5,
+   "p50_ms": 7.6,
+   "p95_ms": 235.3,
+   "p99_ms": 935.5,
+   "mean_ms": 54.6,
+   "errors": 0
+  }
+ ]
+}
