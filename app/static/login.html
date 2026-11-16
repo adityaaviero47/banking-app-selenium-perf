@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in | Retail Banking Demo</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header><strong>Retail Banking Demo</strong></header>
+<main>
+  <form class="card" id="login-form" style="max-width:380px;margin:40px auto">
+    <h2>Sign in</h2>
+    <label for="customer-id">Customer ID</label>
+    <input id="customer-id" inputmode="numeric" autocomplete="username" required>
+    <label for="password">Password</label>
+    <input id="password" type="password" autocomplete="current-password" required>
+    <button class="primary" id="login-btn" type="submit">Sign in</button>
+    <div class="error" id="login-error" role="alert"></div>
+  </form>
+</main>
+<script src="/static/app.js"></script>
+<script>
+document.getElementById("login-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const err = document.getElementById("login-error");
+  err.textContent = "";
+  const id = document.getElementById("customer-id").value.trim();
+  if (!/^\d+$/.test(id)) { err.textContent = "Customer ID is a number"; return; }
+  try {
+    await api("/api/login", { method: "POST", body: JSON.stringify({
+      customer_id: Number(id), password: document.getElementById("password").value }) });
+    window.location = "/dashboard";
+  } catch (ex) { err.textContent = ex.message; }
+});
+</script>
+</body>
+</html>

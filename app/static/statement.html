@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Statement | Retail Banking Demo</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header><strong>Retail Banking Demo</strong>
+  <nav><a href="/dashboard">Accounts</a><a href="/transfer">Transfer</a><button id="logout">Log out</button></nav>
+</header>
+<main>
+  <div class="card">
+    <h2 id="title">Statement</h2>
+    <form class="row" id="search-form">
+      <input id="search" placeholder="Search descriptions, e.g. salary">
+      <button class="primary" style="margin-top:0" id="search-btn">Search</button>
+    </form>
+  </div>
+  <div class="card">
+    <table><thead><tr><th>Date</th><th>Description</th><th>Counterparty</th><th class="amt">Amount</th><th class="amt">Balance</th></tr></thead>
+      <tbody id="rows"></tbody></table>
+    <button class="primary" id="load-more" hidden>Load more</button>
+    <div id="empty" hidden>No transactions found.</div>
+  </div>
+</main>
+<script src="/static/app.js"></script>
+<script>
+header();
+const accountId = new URLSearchParams(location.search).get("account");
+let cursor = null, query = "";
+async function load(reset) {
+  if (reset) { cursor = null; document.getElementById("rows").innerHTML = ""; }
+  const p = new URLSearchParams({ limit: 25 });
+  if (cursor) p.set("cursor", cursor);
+  if (query) p.set("q", query);
+  const data = await api(`/api/accounts/${accountId}/statement?${p}`);
+  document.getElementById("title").textContent = `Statement · ${data.account.number}`;
+  document.getElementById("rows").insertAdjacentHTML("beforeend", data.transactions.map(t => `
+    <tr class="txn" data-id="${t.id}"><td>${t.ts.slice(0, 10)}</td><td class="desc">${esc(t.description)}</td>
+      <td>${esc(t.counterparty)}</td><td class="amt ${t.amount > 0 ? "credit" : ""}">${rupees(t.amount)}</td>
+      <td class="amt">${rupees(t.balance_after)}</td></tr>`).join(""));
+  cursor = data.next_cursor;
+  document.getElementById("load-more").hidden = !cursor;
+  document.getElementById("empty").hidden = document.querySelectorAll("tr.txn").length > 0;
+}
+document.getElementById("search-form").addEventListener("submit", (e) => {
+  e.preventDefault(); query = document.getElementById("search").value.trim(); load(true);
+});
+document.getElementById("load-more").addEventListener("click", () => load(false));
+load(true);
+</script>
+</body>
+</html>

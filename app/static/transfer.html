@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Transfer | Retail Banking Demo</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header><strong>Retail Banking Demo</strong>
+  <nav><a href="/dashboard">Accounts</a><a href="/transfer">Transfer</a><button id="logout">Log out</button></nav>
+</header>
+<main>
+  <form class="card" id="transfer-form" style="max-width:480px">
+    <h2>Transfer money</h2>
+    <label for="from">From account</label>
+    <select id="from"></select>
+    <label for="to">To account number</label>
+    <input id="to" placeholder="e.g. 50100000002" required>
+    <label for="amount">Amount (INR)</label>
+    <input id="amount" inputmode="decimal" placeholder="1500.00" required>
+    <label for="description">Description</label>
+    <input id="description" maxlength="80" placeholder="Rent">
+    <button class="primary" id="send-btn" type="submit">Send</button>
+    <div class="error" id="transfer-error" role="alert"></div>
+    <div class="success" id="transfer-success" role="status"></div>
+  </form>
+</main>
+<script src="/static/app.js"></script>
+<script>
+header();
+let key = crypto.randomUUID();          // one key per intended transfer: retries are no-ops
+(async () => {
+  const list = await api("/api/accounts");
+  document.getElementById("from").innerHTML = list.map(a =>
+    `<option value="${a.id}">${esc(a.kind)} ${esc(a.number)} (${rupees(a.balance)})</option>`).join("");
+})();
+document.getElementById("transfer-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const err = document.getElementById("transfer-error"), ok = document.getElementById("transfer-success");
+  err.textContent = ""; ok.textContent = "";
+  const amount = document.getElementById("amount").value;
+  const bad = amountError(amount);
+  if (bad) { err.textContent = bad; return; }
+  const btn = document.getElementById("send-btn");
+  btn.disabled = true;
+  try {
+    const r = await api("/api/transfers", { method: "POST", body: JSON.stringify({
+      from_account_id: Number(document.getElementById("from").value),
+      to_account_number: document.getElementById("to").value.trim(),
+      amount: amount.trim(),
+      description: document.getElementById("description").value,
+      idempotency_key: key }) });
+    ok.textContent = `Transfer ${r.transfer_id} complete. New balance ${rupees(r.balance ?? 0)}`;
+    if (r.duplicate) ok.textContent = `Transfer ${r.transfer_id} was already completed`;
+    key = crypto.randomUUID();
+  } catch (ex) { err.textContent = ex.message; }
+  finally { btn.disabled = false; }
+});
+</script>
+</body>
+</html>

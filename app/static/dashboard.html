@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Accounts | Retail Banking Demo</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header><strong>Retail Banking Demo</strong>
+  <nav><a href="/dashboard">Accounts</a><a href="/transfer" id="nav-transfer">Transfer</a><button id="logout">Log out</button></nav>
+</header>
+<main>
+  <h2>Your accounts</h2>
+  <div id="accounts"></div>
+</main>
+<script src="/static/app.js"></script>
+<script>
+header();
+(async () => {
+  const list = await api("/api/accounts");
+  document.getElementById("accounts").innerHTML = list.map(a => `
+    <div class="card acct" data-account-id="${a.id}">
+      <div><div class="kind">${esc(a.kind)}</div><div class="number">${esc(a.number)}</div>
+        <a class="view-statement" href="/statement?account=${a.id}">View statement</a></div>
+      <div class="bal" id="balance-${a.id}">${rupees(a.balance)}</div>
+    </div>`).join("");
+})();
+</script>
+</body>
+</html>
